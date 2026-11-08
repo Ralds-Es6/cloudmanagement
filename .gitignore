@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment Variables (CRITICAL)
+.env
+.env.*
+!.env.example
+*.env
+backend/.env
+backend/.env.*
+!backend/.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Production Builds
+dist/
+dist-ssr/
+build/
+*/dist/
+*/build/
+
+# Local Storage / Uploads
+uploads/
+*/uploads/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# System Files & IDEs
+.DS_Store
+.idea/
+.vscode/
+*.local
