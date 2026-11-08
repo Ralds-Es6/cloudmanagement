@@ -210,15 +210,14 @@ export default function AuthLayout({
                   </span>
                 </div>
 
-                <div className="flex justify-center items-center w-full min-h-[44px] overflow-hidden">
+                <div className="flex justify-center items-center w-full min-h-[44px]">
                   <GoogleLogin
                     onSuccess={onGoogleSuccess}
                     onError={onGoogleError}
                     theme="outline"
                     size="large"
                     shape="rectangular"
-                    width="356"
-                    text="continue_with"
+                    width="320"
                   />
                 </div>
               </div>
