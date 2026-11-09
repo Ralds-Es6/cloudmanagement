@@ -33,8 +33,8 @@ export default function AppLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f6f8fc] flex text-slate-800 antialiased font-sans selection:bg-[#4361ee]/20 selection:text-[#4361ee] relative overflow-x-hidden">
-      {/* Responsive Left Sidebar (Off-canvas drawer on mobile, sticky rail/bar on desktop) */}
+    <div className="h-screen bg-[#f6f8fc] flex text-slate-800 antialiased font-sans selection:bg-[#4361ee]/20 selection:text-[#4361ee] overflow-hidden">
+      {/* Responsive Left Sidebar (Permanent fixed rail/drawer on desktop, never scrolls with page) */}
       <Sidebar
         onCreateNew={() => handleOpenCreate('Team Folder')}
         mobileOpen={mobileMenuOpen}
@@ -42,15 +42,15 @@ export default function AppLayout() {
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 bg-[#f6f8fc]">
-        {/* Dynamic Topbar */}
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-[#f6f8fc]">
+        {/* Dynamic Topbar (Fixed at top of content area) */}
         <Topbar
           activeFolderTitle={activeFolderTitle}
           onOpenMobileMenu={() => setMobileMenuOpen(true)}
         />
 
-        {/* Dynamic Page Views */}
-        <div className="flex-1">
+        {/* Dynamic Page Views (Only this container scrolls) */}
+        <div className="flex-1 overflow-y-auto">
           <Outlet context={{ openCreate: handleOpenCreate, setActiveFolderTitle }} />
         </div>
       </div>

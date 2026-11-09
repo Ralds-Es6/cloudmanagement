@@ -127,7 +127,7 @@ export default function Sidebar({ onCreateNew, mobileOpen = false, onCloseMobile
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 lg:static lg:z-30 h-screen bg-[#141d44] text-slate-300 flex flex-col justify-between select-none shrink-0 border-r border-[#1e2a5e] transition-all duration-300 ease-in-out ${
+        className={`fixed inset-y-0 left-0 z-50 lg:relative lg:z-30 h-screen bg-[#141d44] text-slate-300 flex flex-col justify-between select-none shrink-0 border-r border-[#1e2a5e] transition-all duration-300 ease-in-out ${
           /* Mobile Drawer: slide in/out */
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0 ${

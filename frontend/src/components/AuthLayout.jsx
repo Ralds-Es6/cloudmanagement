@@ -60,11 +60,11 @@ export default function AuthLayout({
           : 'bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50/60 via-[#f8fafc] to-[#eef2ff]'
       }`}
     >
-      <div className="w-full max-w-[390px] flex flex-col items-center my-auto">
+      <div className="w-full max-w-[350px] sm:max-w-[360px] flex flex-col items-center my-auto">
         {/* Brand Header */}
-        <div className="flex flex-col items-center mb-3.5 sm:mb-5 text-center select-none">
+        <div className="flex flex-col items-center mb-3 sm:mb-4 text-center select-none">
           <div
-            className={`w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center mb-2 sm:mb-2.5 shadow-md transition-transform hover:scale-105 ${
+            className={`w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center mb-2 shadow-md transition-transform hover:scale-105 ${
               isAdmin
                 ? 'bg-[#0f172a] text-[#60a5fa] border border-slate-700/50 shadow-slate-900/10'
                 : 'bg-[#3b5bef] text-white shadow-[#3b5bef]/25'
@@ -87,13 +87,13 @@ export default function AuthLayout({
         </div>
 
         {/* Elevated Standalone Auth Card */}
-        <div className="w-full bg-white rounded-2xl border border-slate-200/80 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.07)] p-5 sm:p-7">
-          {/* Header */}
-          <div className="mb-4 sm:mb-5">
+        <div className="w-full bg-white rounded-2xl border border-slate-200/80 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.07)] p-5 sm:p-6">
+          {/* Header - Centered title and subtitle */}
+          <div className="mb-4 text-center">
             <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
               {title}
             </h1>
-            <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>
+            <p className="text-xs text-slate-500 mt-1">{subtitle}</p>
           </div>
 
           {/* Error Banner */}
@@ -217,7 +217,7 @@ export default function AuthLayout({
                     theme="outline"
                     size="large"
                     shape="rectangular"
-                    width="320"
+                    width="300"
                   />
                 </div>
               </div>
