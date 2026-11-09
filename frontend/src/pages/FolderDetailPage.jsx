@@ -344,7 +344,7 @@ export default function FolderDetailPage() {
   }
 
   return (
-    <main className="px-4 sm:px-8 lg:px-12 py-5 sm:py-7 w-full space-y-6 sm:space-y-7">
+    <main className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 w-full space-y-5 sm:space-y-6">
       {/* Dynamic Hierarchy Breadcrumbs */}
       <div className="flex items-center space-x-2 text-xs sm:text-sm overflow-x-auto pb-1 scrollbar-none">
         <button

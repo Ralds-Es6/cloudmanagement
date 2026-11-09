@@ -231,12 +231,12 @@ export default function SettingsPage() {
   const trashStorageMB = (stats.trashStorageBytes / (1024 * 1024)).toFixed(2);
 
   return (
-    <main className="px-4 sm:px-8 lg:px-12 py-5 sm:py-8 w-full max-w-7xl mx-auto space-y-6">
+    <main className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 w-full max-w-7xl mx-auto space-y-5 sm:space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 sm:pb-5 border-b border-slate-200">
         <div>
           <div className="flex items-center space-x-3">
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
               Admin Configuration
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-900 text-white flex items-center gap-1.5">
@@ -286,9 +286,9 @@ export default function SettingsPage() {
       )}
 
       {/* System Infrastructure Live Status Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {/* MongoDB Card */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-4.5 flex items-center space-x-3.5 shadow-xs">
+        <div className="bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-4 flex items-center space-x-3.5 shadow-xs">
           <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
             <Database className="w-5 h-5" />
           </div>
@@ -308,7 +308,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Cloudflare R2 Card */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-4.5 flex items-center space-x-3.5 shadow-xs">
+        <div className="bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-4 flex items-center space-x-3.5 shadow-xs">
           <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
             <Cloud className="w-5 h-5" />
           </div>
@@ -328,7 +328,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Real Live Storage Meter Card */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-4.5 flex items-center space-x-3.5 shadow-xs">
+        <div className="bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-4 flex items-center space-x-3.5 shadow-xs">
           <div className="w-10 h-10 rounded-xl bg-indigo-50 text-[#4361ee] flex items-center justify-center shrink-0">
             <HardDrive className="w-5 h-5" />
           </div>

@@ -132,8 +132,8 @@ export default function Sidebar({ onCreateNew, mobileOpen = false, onCloseMobile
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0 ${
           /* Desktop Rail / Expanded Width */
-          isCollapsed ? 'lg:w-20 lg:p-3' : 'lg:w-64 lg:p-4.5'
-        } w-72 p-4.5`}
+          isCollapsed ? 'lg:w-20 lg:p-3' : 'lg:w-60 xl:w-64 lg:p-3.5 xl:p-4'
+        } w-72 p-4`}
       >
         {/* ------------------------------------------------------------- */}
         {/* 1. SEAM TOGGLE PILL (Desktop Only: Linear/Figma style floating) */}
@@ -151,13 +151,13 @@ export default function Sidebar({ onCreateNew, mobileOpen = false, onCloseMobile
           />
         </button>
 
-        <div>
+        <div className="overflow-y-auto overflow-x-hidden flex-1 scrollbar-none pr-0.5">
           {/* ------------------------------------------------------------- */}
           {/* 2. HEADER BRAND & MOBILE CLOSE                                */}
           {/* ------------------------------------------------------------- */}
           <div
-            className={`flex items-center justify-between mb-4 transition-all ${
-              isCollapsed ? 'lg:justify-center py-2' : 'px-2 py-2'
+            className={`flex items-center justify-between mb-3 transition-all ${
+              isCollapsed ? 'lg:justify-center py-1.5' : 'px-1.5 py-1.5'
             }`}
           >
             {/* Logo / Link */}
@@ -193,7 +193,7 @@ export default function Sidebar({ onCreateNew, mobileOpen = false, onCloseMobile
         {/* 3. WORKSPACE / ROLE BADGE CARD                                */}
         {/* ------------------------------------------------------------- */}
         {!isCollapsed ? (
-          <div className="bg-[#1c2759]/80 border border-white/5 rounded-xl p-3 flex items-center justify-between mb-5 select-none animate-in fade-in duration-200">
+          <div className="bg-[#1c2759]/80 border border-white/5 rounded-xl p-2.5 flex items-center justify-between mb-3.5 select-none animate-in fade-in duration-200">
             <div className="overflow-hidden">
               <h4 className="text-xs font-bold text-white truncate flex items-center gap-1.5">
                 {isAdmin && <ShieldCheck className="w-3.5 h-3.5 text-[#5370ff]" />}
@@ -205,7 +205,7 @@ export default function Sidebar({ onCreateNew, mobileOpen = false, onCloseMobile
             </div>
           </div>
         ) : (
-          <div className="my-3 flex justify-center">
+          <div className="my-2.5 flex justify-center">
             <div
               title={isAdmin ? 'Admin Master Storage' : 'Personal Drive'}
               className="w-8 h-8 rounded-xl bg-[#1c2759] border border-white/5 flex items-center justify-center text-[#5370ff]"
@@ -222,7 +222,7 @@ export default function Sidebar({ onCreateNew, mobileOpen = false, onCloseMobile
         {/* ------------------------------------------------------------- */}
         {/* 4. NAVIGATION LIST (WITH FLOATING HOVER TOOLTIPS IN RAIL MODE) */}
         {/* ------------------------------------------------------------- */}
-        <nav className="space-y-1.5">
+        <nav className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -232,7 +232,7 @@ export default function Sidebar({ onCreateNew, mobileOpen = false, onCloseMobile
                 onClick={() => onCloseMobile && onCloseMobile()}
                 className={({ isActive }) =>
                   `w-full flex items-center rounded-xl text-xs font-semibold transition-all cursor-pointer relative group ${
-                    isCollapsed ? 'justify-center p-3' : 'justify-between px-3.5 py-2.5'
+                    isCollapsed ? 'justify-center p-2.5' : 'justify-between px-3 py-2'
                   } ${
                     isActive
                       ? 'bg-[#293879] text-white shadow-sm'
@@ -242,7 +242,7 @@ export default function Sidebar({ onCreateNew, mobileOpen = false, onCloseMobile
               >
                 {({ isActive }) => (
                   <>
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2.5">
                       <Icon
                         className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-105 ${
                           isActive ? 'text-white' : 'text-slate-400'
@@ -253,7 +253,7 @@ export default function Sidebar({ onCreateNew, mobileOpen = false, onCloseMobile
 
                     {/* Badge when expanded */}
                     {!isCollapsed && item.badge && (
-                      <span className="text-[11px] text-slate-400 font-normal px-1.5 py-0.5 rounded bg-white/10 shrink-0">
+                      <span className="text-[10px] text-slate-400 font-normal px-1.5 py-0.5 rounded bg-white/10 shrink-0">
                         {item.badge}
                       </span>
                     )}
@@ -286,11 +286,11 @@ export default function Sidebar({ onCreateNew, mobileOpen = false, onCloseMobile
         {/* ------------------------------------------------------------- */}
         {/* 5. CREATE NEW BUTTON                                          */}
         {/* ------------------------------------------------------------- */}
-        <div className="mt-5">
+        <div className="mt-3.5">
           {!isCollapsed ? (
             <button
               onClick={onCreateNew}
-              className="w-full bg-[#4361ee] hover:bg-[#3652db] text-white font-semibold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-blue-900/40 transition-all cursor-pointer active:scale-98"
+              className="w-full bg-[#4361ee] hover:bg-[#3652db] text-white font-semibold text-xs py-2 px-3.5 rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-blue-900/40 transition-all cursor-pointer active:scale-98"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Create new</span>
@@ -299,9 +299,9 @@ export default function Sidebar({ onCreateNew, mobileOpen = false, onCloseMobile
             <div className="relative group flex justify-center">
               <button
                 onClick={onCreateNew}
-                className="w-10 h-10 rounded-xl bg-[#4361ee] hover:bg-[#3652db] text-white flex items-center justify-center shadow-lg shadow-blue-900/40 transition-all cursor-pointer hover:scale-105 active:scale-95"
+                className="w-9 h-9 rounded-xl bg-[#4361ee] hover:bg-[#3652db] text-white flex items-center justify-center shadow-lg shadow-blue-900/40 transition-all cursor-pointer hover:scale-105 active:scale-95"
               >
-                <Plus className="w-5 h-5 stroke-[2.5]" />
+                <Plus className="w-4.5 h-4.5 stroke-[2.5]" />
               </button>
 
               {/* Floating Tooltip */}
@@ -317,47 +317,47 @@ export default function Sidebar({ onCreateNew, mobileOpen = false, onCloseMobile
       {/* ------------------------------------------------------------- */}
       {/* 6. BOTTOM STORAGE & HELP WIDGET                               */}
       {/* ------------------------------------------------------------- */}
-      <div className="pt-4 border-t border-white/10 space-y-4">
+      <div className="pt-3 border-t border-white/10 space-y-2.5">
         {!isCollapsed ? (
           <div>
-            <div className="flex items-center space-x-2 text-slate-300 mb-2">
-              <HardDrive className="w-4 h-4 text-slate-400" />
+            <div className="flex items-center space-x-2 text-slate-300 mb-1.5">
+              <HardDrive className="w-3.5 h-3.5 text-slate-400" />
               <span className="text-xs font-semibold">
                 {isAdmin ? 'System Storage' : 'My Storage'}
               </span>
             </div>
-            <div className="w-full bg-[#243168] h-1.5 rounded-full overflow-hidden mb-2">
+            <div className="w-full bg-[#243168] h-1.5 rounded-full overflow-hidden mb-1.5">
               <div
                 className="bg-[#5370ff] h-full rounded-full transition-all duration-500"
                 style={{ width: `${Math.min(100, Math.max(2, (totalStorageMB / 1024) * 100))}%` }}
               />
             </div>
-            <p className="text-[11px] text-slate-400 mb-3">
+            <p className="text-[11px] text-slate-400 mb-2">
               {totalStorageMB} MB used (Max 10MB/file)
             </p>
 
             {isAdmin && (
               <NavLink
                 to="/settings"
-                className="block text-center w-full py-2 px-3 rounded-lg border border-slate-600/70 text-slate-200 text-xs font-medium hover:bg-white/5 transition-colors cursor-pointer"
+                className="block text-center w-full py-1.5 px-3 rounded-lg border border-slate-600/70 text-slate-200 text-xs font-medium hover:bg-white/5 transition-colors cursor-pointer"
               >
                 Manage Storage
               </NavLink>
             )}
 
-            <div className="pt-2">
-              <button className="flex items-center space-x-2 text-xs text-slate-400 hover:text-slate-200 transition-colors w-full cursor-pointer">
-                <HelpCircle className="w-4 h-4" />
+            <div className="pt-1.5">
+              <button className="flex items-center space-x-2 text-[11px] text-slate-400 hover:text-slate-200 transition-colors w-full cursor-pointer">
+                <HelpCircle className="w-3.5 h-3.5" />
                 <span>Help & getting started</span>
               </button>
             </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center space-y-3">
+          <div className="flex flex-col items-center space-y-2.5">
             {/* Collapsed Storage Icon with Tooltip */}
             <div className="relative group cursor-pointer">
-              <div className="w-9 h-9 rounded-xl bg-[#1c2759] border border-white/5 flex items-center justify-center text-slate-300 hover:text-white transition-colors">
-                <HardDrive className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-xl bg-[#1c2759] border border-white/5 flex items-center justify-center text-slate-300 hover:text-white transition-colors">
+                <HardDrive className="w-3.5 h-3.5" />
               </div>
 
               {/* Tooltip */}
@@ -372,8 +372,8 @@ export default function Sidebar({ onCreateNew, mobileOpen = false, onCloseMobile
 
             {/* Collapsed Help Icon with Tooltip */}
             <div className="relative group cursor-pointer">
-              <div className="w-9 h-9 rounded-xl bg-transparent hover:bg-white/5 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors">
-                <HelpCircle className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-xl bg-transparent hover:bg-white/5 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors">
+                <HelpCircle className="w-3.5 h-3.5" />
               </div>
               <div className="absolute left-full ml-3 px-3 py-1.5 bg-[#0f172a] text-white text-xs font-semibold rounded-xl shadow-2xl border border-slate-700 whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
                 <span>Help & getting started</span>

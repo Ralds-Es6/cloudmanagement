@@ -104,9 +104,9 @@ export default function FavoritesPage() {
   const totalFavorites = favoriteFolders.length + favoriteFiles.length;
 
   return (
-    <main className="px-4 sm:px-8 lg:px-12 py-5 sm:py-7 w-full space-y-6 sm:space-y-7">
+    <main className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 w-full space-y-5 sm:space-y-6">
       {/* Page Header */}
-      <div className="bg-gradient-to-r from-[#edf2ff] via-[#f1f5fe] to-[#e8eeff] border border-indigo-100/90 rounded-3xl p-5 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 shadow-[0_2px_14px_rgba(67,97,238,0.04)]">
+      <div className="bg-gradient-to-r from-[#edf2ff] via-[#f1f5fe] to-[#e8eeff] border border-indigo-100/90 rounded-2xl sm:rounded-3xl p-4.5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 shadow-[0_2px_14px_rgba(67,97,238,0.04)]">
         <div>
           <div className="flex items-center space-x-3 mb-1.5">
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">

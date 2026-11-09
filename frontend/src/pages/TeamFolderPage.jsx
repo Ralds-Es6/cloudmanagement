@@ -13,7 +13,7 @@ export default function TeamFolderPage() {
   const context = useOutletContext();
 
   return (
-    <main className="px-6 sm:px-10 lg:px-12 py-7 w-full">
+    <main className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 w-full space-y-5 sm:space-y-6">
       {/* Hero Folder Header Banner */}
       <FolderBanner onInviteClick={() => setIsInviteOpen(true)} />
 

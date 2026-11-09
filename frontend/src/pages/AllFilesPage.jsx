@@ -130,7 +130,7 @@ export default function AllFilesPage() {
   // -------------------------------------------------------------
   if (selectedUser) {
     return (
-      <main className="px-6 sm:px-10 lg:px-12 py-7 w-full space-y-7">
+      <main className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 w-full space-y-5 sm:space-y-6">
         {/* Navigation Breadcrumb & Header */}
         <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-7 shadow-xs">
           <button
@@ -314,12 +314,12 @@ export default function AllFilesPage() {
   const endEntry = Math.min(startIndex + cardsPerPage, filteredUsers.length);
 
   return (
-    <main className="px-4 sm:px-8 lg:px-12 py-5 sm:py-7 w-full space-y-6 sm:space-y-7">
+    <main className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 w-full space-y-5 sm:space-y-6">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-[#edf2ff] via-[#f1f5fe] to-[#e8eeff] border border-indigo-100/90 rounded-3xl p-5 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 shadow-[0_2px_14px_rgba(67,97,238,0.04)]">
+      <div className="bg-gradient-to-r from-[#edf2ff] via-[#f1f5fe] to-[#e8eeff] border border-indigo-100/90 rounded-2xl sm:rounded-3xl p-4.5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 shadow-[0_2px_14px_rgba(67,97,238,0.04)]">
         <div>
           <div className="flex items-center space-x-3 mb-1.5">
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
               User Directories
             </h1>
             <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-[#e0e7ff] text-[#4361ee] flex items-center gap-1">
@@ -363,18 +363,18 @@ export default function AllFilesPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
             {paginatedUsers.map((u) => {
               return (
                 <div
                   key={u._id}
                   onClick={() => handleSelectUser(u)}
-                  className="bg-white hover:bg-slate-50/80 border border-slate-200/90 hover:border-[#4361ee]/50 rounded-2xl p-5 shadow-xs transition-all cursor-pointer group flex flex-col justify-between"
+                  className="bg-white hover:bg-slate-50/80 border border-slate-200/90 hover:border-[#4361ee]/50 rounded-2xl p-4.5 shadow-xs transition-all cursor-pointer group flex flex-col justify-between"
                 >
                   <div>
-                    <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-start justify-between mb-3.5">
                       <div className="flex items-center space-x-3">
-                        <div className="w-11 h-11 rounded-xl bg-indigo-50 text-[#4361ee] font-bold text-sm flex items-center justify-center border border-indigo-100 group-hover:bg-[#4361ee] group-hover:text-white transition-colors">
+                        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-indigo-50 text-[#4361ee] font-bold text-sm flex items-center justify-center border border-indigo-100 group-hover:bg-[#4361ee] group-hover:text-white transition-colors shrink-0">
                           {getInitials(u.name)}
                         </div>
                         <div className="min-w-0">
@@ -397,7 +397,7 @@ export default function AllFilesPage() {
                     </div>
 
                     {/* Storage stats */}
-                    <div className="grid grid-cols-3 gap-2 py-3 px-3.5 bg-slate-50 rounded-xl border border-slate-100 text-center mb-4">
+                    <div className="grid grid-cols-3 gap-2 py-2.5 px-3 bg-slate-50 rounded-xl border border-slate-100 text-center mb-3.5">
                       <div>
                         <p className="text-xs font-bold text-slate-800">{u.folderCount}</p>
                         <p className="text-[10px] text-slate-400 font-medium">Folders</p>

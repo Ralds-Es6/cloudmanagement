@@ -56,7 +56,7 @@ export default function Topbar({ onSearch, activeFolderTitle, onOpenMobileMenu }
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200/90 px-4 sm:px-8 lg:px-12 flex items-center justify-between sticky top-0 z-20 shrink-0 gap-3">
+    <header className="h-14 sm:h-16 bg-white border-b border-slate-200/90 px-4 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-20 shrink-0 gap-3">
       {/* Left: Mobile Hamburger + Breadcrumb */}
       <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
         <button

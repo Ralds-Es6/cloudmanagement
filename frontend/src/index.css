@@ -2,5 +2,55 @@
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 
+ * Windows 125% / 150% Scale & Laptop Display Density Optimization
+ * When Windows scale is set to 150% on a 1080p monitor, the effective CSS viewport is 1280x720.
+ * Scaling the base font size proportionately scales all rem units (paddings, margins, components),
+ * making everything fit laptop screens like a native desktop app with zero awkward clipping.
+ */
+@media screen and (max-width: 1440px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+@media screen and (max-width: 1280px), screen and (max-height: 760px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-height: 640px) {
+  html {
+    font-size: 13.5px;
+  }
+}
+
+/* Sleek modern custom scrollbar for Windows (avoids the clunky default 17px gray bar) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.7);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
 }
 
