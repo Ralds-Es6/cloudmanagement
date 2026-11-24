@@ -165,15 +165,15 @@ export default function Sidebar({ onCreateNew, mobileOpen = false, onCloseMobile
               to={defaultHome}
               onClick={() => onCloseMobile && onCloseMobile()}
               className="flex items-center space-x-2.5 cursor-pointer group"
-              title="ZPPSU CLOUD"
+              title="CloudXen"
             >
               <div className="w-8 h-8 rounded-xl bg-[#4361ee] text-white flex items-center justify-center shadow-md shadow-[#4361ee]/30 group-hover:scale-105 transition-transform shrink-0">
                 <Cloud className="w-5 h-5 stroke-[2.4]" />
               </div>
               {(!isCollapsed || mobileOpen) && (
-                <span className="font-bold text-base tracking-tight truncate">
-                  <span className="text-white">ZPPSU </span>
-                  <span className="text-[#5370ff]">CLOUD</span>
+                <span className="font-bold text-lg tracking-tight truncate">
+                  <span className="text-white">Cloud</span>
+                  <span className="text-[#5370ff]">Xen</span>
                 </span>
               )}
             </NavLink>

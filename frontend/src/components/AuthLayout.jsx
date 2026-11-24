@@ -63,16 +63,16 @@ export default function AuthLayout({
           >
             <Cloud className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.3]" />
           </div>
-          <div className="flex items-center space-x-1.5">
+          <div className="flex items-center space-x-0.5">
             <span className="font-extrabold text-xl sm:text-2xl tracking-tight text-slate-900">
-              ZPPSU
+              Cloud
             </span>
             <span
               className={`font-black text-xl sm:text-2xl tracking-tight ${
                 isAdmin ? 'text-[#3b5bef]' : 'text-[#3b5bef]'
               }`}
             >
-              CLOUD
+              Xen
             </span>
           </div>
         </div>
@@ -218,7 +218,7 @@ export default function AuthLayout({
 
         {/* Minimal Copyright & Security Footer */}
         <p className="mt-3 sm:mt-4 text-[11px] text-slate-400 text-center select-none">
-          © ZPPSU CLOUD · Document Management & Cloud Storage
+          © CloudXen · Document Management & Cloud Storage
         </p>
       </div>
     </div>
