@@ -112,11 +112,6 @@ export default function LoginPage() {
       isSubmitting={isSubmitting}
       onSubmit={handleSubmit}
       buttonText="Sign In"
-      demoCredentials={{
-        email: import.meta.env.VITE_DEMO_USER_EMAIL || 'user@cloud.local',
-        password: import.meta.env.VITE_DEMO_USER_PASSWORD || 'user123',
-        label: 'Demo User',
-      }}
       turnstileSiteKey={siteKey}
       turnstileRef={turnstileRef}
       onTurnstileSuccess={(token) => {

@@ -69,7 +69,7 @@ export default function Topbar({ onSearch, activeFolderTitle, onOpenMobileMenu }
         </button>
 
         <div className="flex items-center space-x-1.5 sm:space-x-2 text-xs sm:text-sm truncate">
-          <span className="text-slate-400 font-medium hidden xs:inline">CloudXen</span>
+          <span className="text-slate-400 font-medium hidden xs:inline">ZPPSU CLOUD</span>
           <span className="text-slate-300 hidden xs:inline">›</span>
           {location.pathname.startsWith('/folders/') && (
             <>

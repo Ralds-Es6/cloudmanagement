@@ -8,7 +8,6 @@ import {
   ArrowRight,
   AlertCircle,
   Loader2,
-  KeyRound,
   ShieldCheck,
 } from 'lucide-react';
 import { Turnstile } from '@marsidev/react-turnstile';
@@ -33,7 +32,6 @@ export default function AuthLayout({
   isSubmitting,
   onSubmit,
   buttonText = 'Sign In',
-  demoCredentials,
   turnstileSiteKey,
   turnstileRef,
   onTurnstileSuccess,
@@ -44,13 +42,6 @@ export default function AuthLayout({
 }) {
   const [showPassword, setShowPassword] = useState(false);
   const isAdmin = portalType === 'admin';
-
-  const handleAutofill = () => {
-    if (demoCredentials) {
-      setEmail(demoCredentials.email);
-      setPassword(demoCredentials.password);
-    }
-  };
 
   return (
     <div
@@ -72,16 +63,16 @@ export default function AuthLayout({
           >
             <Cloud className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.3]" />
           </div>
-          <div className="flex items-center space-x-0.5">
+          <div className="flex items-center space-x-1.5">
             <span className="font-extrabold text-xl sm:text-2xl tracking-tight text-slate-900">
-              Cloud
+              ZPPSU
             </span>
             <span
               className={`font-black text-xl sm:text-2xl tracking-tight ${
                 isAdmin ? 'text-[#3b5bef]' : 'text-[#3b5bef]'
               }`}
             >
-              Xen
+              CLOUD
             </span>
           </div>
         </div>
@@ -225,24 +216,9 @@ export default function AuthLayout({
           </form>
         </div>
 
-        {/* Discreet External Quick-Fill (Keeps Card Clutter-Free) */}
-        {demoCredentials && (
-          <div className="mt-2.5 sm:mt-3 flex items-center">
-            <button
-              type="button"
-              onClick={handleAutofill}
-              className="inline-flex items-center space-x-1.5 text-[11px] text-slate-400 hover:text-slate-700 bg-white/70 hover:bg-white border border-slate-200/80 rounded-full px-3 py-0.5 sm:py-1 transition-all shadow-xs cursor-pointer"
-              title={`Autofill ${demoCredentials.email}`}
-            >
-              <KeyRound className="w-3 h-3 text-slate-400" />
-              <span>Fill {demoCredentials.label}</span>
-            </button>
-          </div>
-        )}
-
         {/* Minimal Copyright & Security Footer */}
         <p className="mt-3 sm:mt-4 text-[11px] text-slate-400 text-center select-none">
-          © CloudXen · Document Management & Cloud Storage
+          © ZPPSU CLOUD · Document Management & Cloud Storage
         </p>
       </div>
     </div>

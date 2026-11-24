@@ -80,11 +80,6 @@ export default function AdminLoginPage() {
       isSubmitting={isSubmitting}
       onSubmit={handleSubmit}
       buttonText="Access Console"
-      demoCredentials={{
-        email: import.meta.env.VITE_DEMO_ADMIN_EMAIL || 'admin@cloud.local',
-        password: import.meta.env.VITE_DEMO_ADMIN_PASSWORD || 'admin123',
-        label: 'Demo Admin',
-      }}
       turnstileSiteKey={siteKey}
       turnstileRef={turnstileRef}
       onTurnstileSuccess={(token) => {

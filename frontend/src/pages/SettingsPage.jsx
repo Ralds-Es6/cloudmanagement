@@ -598,7 +598,7 @@ export default function SettingsPage() {
                 Authorized User Accounts
               </h2>
               <p className="text-xs text-slate-400">
-                Manage accounts with access to CloudXen personal storage directories.
+                Manage accounts with access to ZPPSU CLOUD personal storage directories.
               </p>
             </div>
             <button
