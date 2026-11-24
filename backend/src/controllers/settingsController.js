@@ -3,40 +3,74 @@ import { SystemSetting } from '../models/SystemSetting.js';
 import { Document } from '../models/Document.js';
 import { Folder } from '../models/Folder.js';
 import { User } from '../models/User.js';
-import { deleteFileFromR2 } from '../services/r2Service.js';
+import { deleteFileFromR2, deleteFolderMarkerInR2 } from '../services/r2Service.js';
+import { getFolderR2Key } from './folderController.js';
 import { isR2Configured, R2_CONFIG } from '../config/r2.js';
+
+export const DEFAULT_MAX_UPLOAD_SIZE_MB = 25;
+export const DEFAULT_ALLOWED_EXTENSIONS = [
+  'pdf',
+  'doc',
+  'docx',
+  'xls',
+  'xlsx',
+  'ppt',
+  'pptx',
+  'png',
+  'jpg',
+  'jpeg',
+  'webp',
+  'svg',
+  'zip',
+  'txt',
+  'csv',
+];
 
 /**
  * Helper to fetch or initialize system setting document
  */
-const getOrCreateSettings = async () => {
+export const getOrCreateSettings = async () => {
+  if (mongoose.connection.readyState !== 1) {
+    return {
+      maxUploadSizeMB: DEFAULT_MAX_UPLOAD_SIZE_MB,
+      allowedExtensions: [...DEFAULT_ALLOWED_EXTENSIONS],
+      publicSharingEnabled: true,
+      defaultShareExpirationDays: 30,
+    };
+  }
+
   let settings = await SystemSetting.findOne({ key: 'cloudxen_config' });
   if (!settings) {
     settings = await SystemSetting.create({
       key: 'cloudxen_config',
-      maxUploadSizeMB: 25,
-      allowedExtensions: [
-        'pdf',
-        'doc',
-        'docx',
-        'xls',
-        'xlsx',
-        'ppt',
-        'pptx',
-        'png',
-        'jpg',
-        'jpeg',
-        'webp',
-        'svg',
-        'zip',
-        'txt',
-        'csv',
-      ],
+      maxUploadSizeMB: DEFAULT_MAX_UPLOAD_SIZE_MB,
+      allowedExtensions: [...DEFAULT_ALLOWED_EXTENSIONS],
       publicSharingEnabled: true,
       defaultShareExpirationDays: 30,
     });
   }
   return settings;
+};
+
+/**
+ * GET /api/settings/upload-rules
+ * Any authenticated user: Fetch active allowed file extensions & max upload size
+ */
+export const getUploadRules = async (req, res, next) => {
+  try {
+    const settings = await getOrCreateSettings();
+    res.status(200).json({
+      success: true,
+      data: {
+        maxUploadSizeMB: settings.maxUploadSizeMB ?? DEFAULT_MAX_UPLOAD_SIZE_MB,
+        allowedExtensions: Array.isArray(settings.allowedExtensions)
+          ? settings.allowedExtensions
+          : [...DEFAULT_ALLOWED_EXTENSIONS],
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 /**
@@ -189,12 +223,13 @@ export const purgeAllTrash = async (req, res, next) => {
 
     for (const doc of trashDocs) {
       freedBytes += doc.fileSize || 0;
-      if (doc.fileKey) {
+      const objectKey = doc.r2Key || doc.fileKey;
+      if (objectKey) {
         try {
-          await deleteFileFromR2(doc.fileKey);
+          await deleteFileFromR2(objectKey);
           purgedR2Count++;
         } catch (err) {
-          console.warn(`[Purge Trash R2 Error] ${doc.fileKey}:`, err.message);
+          console.warn(`[Purge Trash R2 Error] ${objectKey}:`, err.message);
         }
       }
     }
@@ -293,6 +328,96 @@ export const resetUserPassword = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: `Password reset successfully for ${targetUser.email}`,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * DELETE /api/settings/users/:id
+ * Admin only: Permanently delete a user AND cascade-delete all their folders, documents, and R2 objects
+ */
+export const deleteUserByAdmin = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid user ID.',
+      });
+    }
+
+    if (String(req.user?._id) === String(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'You cannot delete your own currently signed-in administrator account.',
+      });
+    }
+
+    const targetUser = await User.findById(id);
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User account not found.',
+      });
+    }
+
+    // 1. Find all documents owned by this user (both active and trashed)
+    const userDocs = await Document.find({ owner: targetUser._id });
+    let deletedR2Files = 0;
+
+    for (const doc of userDocs) {
+      const objectKey = doc.r2Key || doc.fileKey;
+      if (objectKey) {
+        try {
+          await deleteFileFromR2(objectKey);
+          deletedR2Files++;
+        } catch (err) {
+          console.warn(`[Delete User R2 File Error] ${objectKey}:`, err.message);
+        }
+      }
+    }
+
+    // 2. Find all folders owned by this user and remove R2 folder markers
+    const userFolders = await Folder.find({ owner: targetUser._id });
+    for (const folder of userFolders) {
+      try {
+        const markerKey = await getFolderR2Key(folder);
+        await deleteFolderMarkerInR2(markerKey);
+      } catch (err) {
+        console.warn(`[Delete User R2 Folder Marker Error] ${folder.name}:`, err.message);
+      }
+    }
+
+    // 3. Delete all owned documents & folders from MongoDB
+    const [docDeleteResult, folderDeleteResult] = await Promise.all([
+      Document.deleteMany({ owner: targetUser._id }),
+      Folder.deleteMany({ owner: targetUser._id }),
+      // Clean up any dangling sharedWith entries referencing this user
+      Document.updateMany(
+        { 'sharedWith.user': targetUser._id },
+        { $pull: { sharedWith: { user: targetUser._id } } }
+      ),
+      Folder.updateMany(
+        { 'sharedWith.user': targetUser._id },
+        { $pull: { sharedWith: { user: targetUser._id } } }
+      ),
+    ]);
+
+    // 4. Delete the User account itself
+    await User.deleteOne({ _id: targetUser._id });
+
+    res.status(200).json({
+      success: true,
+      message: `Account "${targetUser.name}" and all associated data (${folderDeleteResult.deletedCount} folders, ${docDeleteResult.deletedCount} files) have been permanently deleted.`,
+      data: {
+        deletedUserId: targetUser._id,
+        deletedDocuments: docDeleteResult.deletedCount,
+        deletedFolders: folderDeleteResult.deletedCount,
+        deletedR2Files,
+      },
     });
   } catch (error) {
     next(error);

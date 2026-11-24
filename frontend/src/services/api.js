@@ -247,8 +247,13 @@ export const downloadFolderZip = async (id, folderName = 'folder') => {
 };
 
 /**
- * Admin System Settings APIs
+ * Admin System Settings & Upload Rules APIs
  */
+export const getUploadRulesApi = async () => {
+  const response = await api.get('/settings/upload-rules');
+  return response.data;
+};
+
 export const getSettingsApi = async () => {
   const response = await api.get('/settings');
   return response.data;
@@ -273,6 +278,11 @@ export const resetUserPasswordApi = async (userId, newPassword) => {
   const response = await api.post(`/settings/users/${userId}/reset-password`, {
     newPassword,
   });
+  return response.data;
+};
+
+export const deleteAdminUserApi = async (userId) => {
+  const response = await api.delete(`/settings/users/${userId}`);
   return response.data;
 };
 

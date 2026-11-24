@@ -2,45 +2,23 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import {
+  getOrCreateSettings,
+  DEFAULT_ALLOWED_EXTENSIONS,
+  DEFAULT_MAX_UPLOAD_SIZE_MB,
+} from '../controllers/settingsController.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Uploads destination
+// Temporary uploads destination (cleaned up immediately after R2 upload)
 const uploadDir = path.join(__dirname, '../../uploads/documents');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Strictly Document Extensions (No videos, no music, no executables)
-export const ALLOWED_EXTENSIONS = [
-  '.pdf',
-  '.doc',
-  '.docx',
-  '.xls',
-  '.xlsx',
-  '.ppt',
-  '.pptx',
-  '.txt',
-  '.csv',
-  '.md',
-];
-
-export const ALLOWED_MIME_TYPES = [
-  'application/pdf',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'application/vnd.ms-powerpoint',
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-  'text/plain',
-  'text/csv',
-  'text/markdown',
-];
-
-// 10MB Maximum File Size Limit
-export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 Megabytes
+export const ALLOWED_EXTENSIONS = DEFAULT_ALLOWED_EXTENSIONS.map((e) => `.${e}`);
+export const MAX_FILE_SIZE_BYTES = DEFAULT_MAX_UPLOAD_SIZE_MB * 1024 * 1024;
 
 // Disk storage configuration
 const storage = multer.diskStorage({
@@ -57,46 +35,77 @@ const storage = multer.diskStorage({
   },
 });
 
-// File filter restricting strictly to document types
-const fileFilter = (req, file, cb) => {
-  const ext = path.extname(file.originalname).toLowerCase();
-  const mimetype = (file.mimetype || '').toLowerCase();
+/**
+ * Dynamic Multer middleware that strictly enforces live Admin Settings
+ * (allowedExtensions & maxUploadSizeMB) from MongoDB on every upload request.
+ */
+export const dynamicDocumentUpload = async (req, res, next) => {
+  try {
+    const settings = await getOrCreateSettings();
 
-  // Explicitly block audio and video
-  if (
-    mimetype.startsWith('video/') ||
-    mimetype.startsWith('audio/') ||
-    ['.mp4', '.mkv', '.avi', '.mov', '.webm', '.mp3', '.wav', '.flac', '.aac', '.m4a'].includes(ext)
-  ) {
-    const error = new Error(
-      'Media files (videos and music/audio) are strictly prohibited. Only documents are permitted.'
-    );
-    error.code = 'MEDIA_NOT_ALLOWED';
-    return cb(error, false);
-  }
+    const allowedList = Array.isArray(settings.allowedExtensions)
+      ? settings.allowedExtensions
+          .map((ext) => String(ext).toLowerCase().trim().replace(/^\./, ''))
+          .filter(Boolean)
+      : [...DEFAULT_ALLOWED_EXTENSIONS];
 
-  const isExtensionAllowed = ALLOWED_EXTENSIONS.includes(ext);
-  const isMimeAllowed = ALLOWED_MIME_TYPES.includes(mimetype);
+    const maxMB = Number(settings.maxUploadSizeMB) || DEFAULT_MAX_UPLOAD_SIZE_MB;
+    const maxBytes = maxMB * 1024 * 1024;
 
-  if (isExtensionAllowed || isMimeAllowed) {
-    cb(null, true);
-  } else {
-    const error = new Error(
-      `File rejected: Only document files are allowed (${ALLOWED_EXTENSIONS.join(
-        ', '
-      )}). Maximum file size is 10MB.`
-    );
-    error.code = 'INVALID_FILE_TYPE';
-    cb(error, false);
+    const fileFilter = (_req, file, cb) => {
+      const extWithDot = path.extname(file.originalname || '').toLowerCase();
+      const extNoDot = extWithDot.replace(/^\./, '');
+
+      if (allowedList.length === 0) {
+        const error = new Error(
+          'Uploads are currently disabled because no file extensions are enabled in Admin Settings.'
+        );
+        error.code = 'INVALID_FILE_TYPE';
+        return cb(error, false);
+      }
+
+      if (!extNoDot || !allowedList.includes(extNoDot)) {
+        const formattedAllowed = allowedList.map((e) => `.${e}`).join(', ');
+        const error = new Error(
+          `File type "${extWithDot || 'unknown'}" is currently disabled by administrator policy. Allowed formats: ${formattedAllowed}.`
+        );
+        error.code = 'INVALID_FILE_TYPE';
+        return cb(error, false);
+      }
+
+      cb(null, true);
+    };
+
+    const upload = multer({
+      storage,
+      fileFilter,
+      limits: {
+        fileSize: maxBytes,
+      },
+    }).single('file');
+
+    upload(req, res, (err) => {
+      if (!err) return next();
+
+      if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({
+          success: false,
+          message: `File exceeds the maximum allowed size of ${maxMB} MB configured by administrator.`,
+        });
+      }
+
+      return res.status(400).json({
+        success: false,
+        message: err.message || 'File upload rejected by system policy.',
+      });
+    });
+  } catch (err) {
+    next(err);
   }
 };
 
-export const documentUpload = multer({
-  storage,
-  fileFilter,
-  limits: {
-    fileSize: MAX_FILE_SIZE_BYTES, // Exactly 10MB
-  },
-});
+export const documentUpload = {
+  single: () => dynamicDocumentUpload,
+};
 
-export default documentUpload;
+export default dynamicDocumentUpload;

@@ -12,6 +12,7 @@ export default function AppLayout() {
     defaultFolder: 'Team Folder',
     parentId: null,
     initialTab: 'upload',
+    initialPayload: null,
   });
 
   const handleOpenCreate = (options = 'Team Folder') => {
@@ -21,6 +22,7 @@ export default function AppLayout() {
         defaultFolder: options,
         parentId: null,
         initialTab: 'upload',
+        initialPayload: null,
       });
     } else {
       setModalState({
@@ -28,6 +30,7 @@ export default function AppLayout() {
         defaultFolder: options?.defaultFolder || 'Team Folder',
         parentId: options?.parentId || null,
         initialTab: options?.initialTab || 'upload',
+        initialPayload: options?.initialPayload || null,
       });
     }
   };
@@ -61,7 +64,10 @@ export default function AppLayout() {
         defaultFolder={modalState.defaultFolder}
         parentId={modalState.parentId}
         initialTab={modalState.initialTab}
-        onClose={() => setModalState((prev) => ({ ...prev, isOpen: false }))}
+        initialPayload={modalState.initialPayload}
+        onClose={() =>
+          setModalState((prev) => ({ ...prev, isOpen: false, initialPayload: null }))
+        }
         onCreated={() => {
           // Trigger global event so pages can auto-refresh
           window.dispatchEvent(new Event('document-uploaded'));

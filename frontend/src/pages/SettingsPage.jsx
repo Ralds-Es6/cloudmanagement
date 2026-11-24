@@ -17,6 +17,7 @@ import {
   FileCheck,
   UserPlus,
   Lock,
+  AlertTriangle,
 } from 'lucide-react';
 import {
   getSettingsApi,
@@ -25,7 +26,9 @@ import {
   getUsersApi,
   createAdminUserApi,
   resetUserPasswordApi,
+  deleteAdminUserApi,
 } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
 
 const COMMON_EXTENSIONS = [
@@ -47,6 +50,7 @@ const COMMON_EXTENSIONS = [
 ];
 
 export default function SettingsPage() {
+  const { user: currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState('storage'); // 'storage' | 'security' | 'users' | 'maintenance'
 
   // Settings State
@@ -85,6 +89,12 @@ export default function SettingsPage() {
   const [resetTargetUser, setResetTargetUser] = useState(null);
   const [newPassword, setNewPassword] = useState('');
   const [resetSubmitting, setResetSubmitting] = useState(false);
+
+  // Two-Step CONFIRM Delete User Modal State
+  const [deleteTargetUser, setDeleteTargetUser] = useState(null);
+  const [deleteStep1, setDeleteStep1] = useState('');
+  const [deleteStep2, setDeleteStep2] = useState('');
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
 
   // Trash Purge State
   const [purging, setPurging] = useState(false);
@@ -144,6 +154,7 @@ export default function SettingsPage() {
         defaultShareExpirationDays,
       });
       setSaveSuccess(true);
+      window.dispatchEvent(new Event('settings-updated'));
       toast.success('System configuration saved successfully');
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err) {
@@ -227,6 +238,40 @@ export default function SettingsPage() {
     }
   };
 
+  const openDeleteUserModal = (targetUser) => {
+    setDeleteTargetUser(targetUser);
+    setDeleteStep1('');
+    setDeleteStep2('');
+  };
+
+  const closeDeleteUserModal = () => {
+    if (deleteSubmitting) return;
+    setDeleteTargetUser(null);
+    setDeleteStep1('');
+    setDeleteStep2('');
+  };
+
+  const handleDeleteUser = async (e) => {
+    e.preventDefault();
+    if (!deleteTargetUser) return;
+    if (deleteStep1 !== 'CONFIRM' || deleteStep2 !== 'CONFIRM') return;
+
+    try {
+      setDeleteSubmitting(true);
+      const res = await deleteAdminUserApi(deleteTargetUser.id || deleteTargetUser._id);
+      toast.success(res?.message || `Account "${deleteTargetUser.name}" permanently deleted.`);
+      setDeleteTargetUser(null);
+      setDeleteStep1('');
+      setDeleteStep2('');
+      fetchData();
+      window.dispatchEvent(new Event('document-uploaded'));
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err?.message || 'Failed to delete user account');
+    } finally {
+      setDeleteSubmitting(false);
+    }
+  };
+
   const activeStorageMB = (stats.activeStorageBytes / (1024 * 1024)).toFixed(2);
   const trashStorageMB = (stats.trashStorageBytes / (1024 * 1024)).toFixed(2);
 
@@ -287,42 +332,46 @@ export default function SettingsPage() {
 
       {/* System Infrastructure Live Status Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        {/* MongoDB Card */}
+        {/* Database Service Card */}
         <div className="bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-4 flex items-center space-x-3.5 shadow-xs">
           <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
             <Database className="w-5 h-5" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center space-x-2">
-              <span className="text-xs font-bold text-slate-800">Local MongoDB</span>
+              <span className="text-xs font-bold text-slate-800">Database Engine</span>
               <span
                 className={`w-2 h-2 rounded-full ${
                   infrastructure.mongo.connected ? 'bg-emerald-500' : 'bg-rose-500'
                 }`}
               />
             </div>
-            <p className="text-[11px] text-slate-400 font-mono truncate mt-0.5">
-              {infrastructure.mongo.dbName || 'document_management_db'}
+            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+              {infrastructure.mongo.connected
+                ? 'Operational · Cloud Synced'
+                : 'Disconnected · Reconnecting'}
             </p>
           </div>
         </div>
 
-        {/* Cloudflare R2 Card */}
+        {/* Cloud Object Storage Card */}
         <div className="bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-4 flex items-center space-x-3.5 shadow-xs">
           <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
             <Cloud className="w-5 h-5" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center space-x-2">
-              <span className="text-xs font-bold text-slate-800">Cloudflare R2</span>
+              <span className="text-xs font-bold text-slate-800">Cloud Object Storage</span>
               <span
                 className={`w-2 h-2 rounded-full ${
                   infrastructure.r2.configured ? 'bg-emerald-500' : 'bg-amber-400'
                 }`}
               />
             </div>
-            <p className="text-[11px] text-slate-400 font-mono truncate mt-0.5">
-              {infrastructure.r2.bucketName}
+            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+              {infrastructure.r2.configured
+                ? 'Active · Encrypted Vault'
+                : 'Unavailable · Setup Required'}
             </p>
           </div>
         </div>
@@ -333,7 +382,7 @@ export default function SettingsPage() {
             <HardDrive className="w-5 h-5" />
           </div>
           <div className="min-w-0">
-            <span className="text-xs font-bold text-slate-800">Live Storage Consumed</span>
+            <span className="text-xs font-bold text-slate-800">Storage Consumed</span>
             <p className="text-[11px] text-slate-500 font-semibold mt-0.5">
               {activeStorageMB} MB <span className="font-normal text-slate-400">({stats.totalDocuments} active files)</span>
             </p>
@@ -601,14 +650,30 @@ export default function SettingsPage() {
                           {userStorageMB} MB
                         </td>
                         <td className="py-3.5 px-4 text-right">
-                          <button
-                            type="button"
-                            onClick={() => setResetTargetUser(u)}
-                            className="inline-flex items-center space-x-1 text-slate-500 hover:text-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors cursor-pointer"
-                          >
-                            <KeyRound className="w-3 h-3" />
-                            <span>Reset Password</span>
-                          </button>
+                          <div className="inline-flex items-center justify-end gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setResetTargetUser(u)}
+                              className="inline-flex items-center space-x-1 text-slate-500 hover:text-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors cursor-pointer"
+                            >
+                              <KeyRound className="w-3 h-3" />
+                              <span>Reset Password</span>
+                            </button>
+                            {String(currentUser?.id || currentUser?._id) !== String(u.id || u._id) ? (
+                              <button
+                                type="button"
+                                onClick={() => openDeleteUserModal(u)}
+                                className="inline-flex items-center space-x-1 text-rose-600 hover:text-white px-2.5 py-1 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-600 hover:border-rose-600 transition-colors cursor-pointer"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                                <span>Delete</span>
+                              </button>
+                            ) : (
+                              <span className="text-[10px] font-semibold text-slate-400 px-2 py-1 rounded-lg bg-slate-100 select-none">
+                                You
+                              </span>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -629,7 +694,7 @@ export default function SettingsPage() {
                 Permanent Trash Purge
               </h2>
               <p className="text-xs text-slate-400 mt-1 max-w-xl leading-relaxed">
-                Items moved to Trash remain recoverable until permanently purged. Purging permanently removes soft-deleted metadata from MongoDB and physically deletes binary objects from the Cloudflare R2 bucket.
+                Items moved to Trash remain recoverable until permanently purged. Purging permanently removes soft-deleted records and physically erases stored files from your encrypted cloud vault.
               </p>
             </div>
 
@@ -792,6 +857,129 @@ export default function SettingsPage() {
                   className="px-4 py-1.5 text-xs font-semibold bg-slate-900 text-white rounded-xl shadow-xs"
                 >
                   {resetSubmitting ? 'Updating...' : 'Set Password'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Two-Step CONFIRM Delete User Safety Net */}
+      {deleteTargetUser && (
+        <div className="fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-rose-200 shadow-2xl p-6 w-full max-w-md animate-in zoom-in-95">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-9 h-9 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Delete User Account</h3>
+                  <p className="text-[11px] text-rose-600 font-semibold">
+                    Irreversible destructive action
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={closeDeleteUserModal}
+                disabled={deleteSubmitting}
+                className="text-slate-400 hover:text-slate-600 cursor-pointer disabled:opacity-40"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-rose-50/80 border border-rose-200/80 text-xs text-rose-800 space-y-1 mb-4">
+              <p>
+                You are about to permanently delete{' '}
+                <span className="font-bold text-rose-950">{deleteTargetUser.name}</span> (
+                <span className="font-mono">{deleteTargetUser.email}</span>).
+              </p>
+              <p className="text-[11px] text-rose-700 leading-relaxed">
+                All folders, documents, and stored cloud files belonging to this user will be
+                permanently erased and cannot be recovered.
+              </p>
+            </div>
+
+            <form onSubmit={handleDeleteUser} className="space-y-3.5">
+              {/* Step 1: First CONFIRM input */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Step 1 of 2: Type{' '}
+                  <span className="font-mono font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">
+                    CONFIRM
+                  </span>{' '}
+                  to proceed
+                </label>
+                <input
+                  type="text"
+                  autoComplete="off"
+                  spellCheck="false"
+                  disabled={deleteSubmitting}
+                  placeholder="CONFIRM"
+                  value={deleteStep1}
+                  onChange={(e) => {
+                    const upper = e.target.value.toUpperCase();
+                    setDeleteStep1(upper);
+                    if (upper !== 'CONFIRM') {
+                      setDeleteStep2('');
+                    }
+                  }}
+                  className={`w-full px-3.5 py-2 text-xs font-mono tracking-wider uppercase bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 transition-all ${
+                    deleteStep1 === 'CONFIRM'
+                      ? 'border-emerald-400 bg-emerald-50/40 text-emerald-800 focus:ring-emerald-200'
+                      : 'border-slate-200 text-slate-900 focus:ring-rose-200 focus:border-rose-400'
+                  }`}
+                />
+              </div>
+
+              {/* Step 2: Second (Final) CONFIRM input appears once Step 1 matches */}
+              {deleteStep1 === 'CONFIRM' && (
+                <div className="animate-in fade-in duration-200">
+                  <label className="block text-xs font-semibold text-rose-700 mb-1">
+                    Step 2 of 2 (Final Check): Type{' '}
+                    <span className="font-mono font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">
+                      CONFIRM
+                    </span>{' '}
+                    one last time
+                  </label>
+                  <input
+                    type="text"
+                    autoFocus
+                    autoComplete="off"
+                    spellCheck="false"
+                    disabled={deleteSubmitting}
+                    placeholder="CONFIRM"
+                    value={deleteStep2}
+                    onChange={(e) => setDeleteStep2(e.target.value.toUpperCase())}
+                    className={`w-full px-3.5 py-2 text-xs font-mono tracking-wider uppercase bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 transition-all ${
+                      deleteStep2 === 'CONFIRM'
+                        ? 'border-rose-500 bg-rose-50/40 text-rose-900 focus:ring-rose-200'
+                        : 'border-rose-200 text-slate-900 focus:ring-rose-200 focus:border-rose-400'
+                    }`}
+                  />
+                </div>
+              )}
+
+              <div className="pt-2 flex items-center justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={closeDeleteUserModal}
+                  disabled={deleteSubmitting}
+                  className="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={
+                    deleteSubmitting || deleteStep1 !== 'CONFIRM' || deleteStep2 !== 'CONFIRM'
+                  }
+                  className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>{deleteSubmitting ? 'Deleting Account...' : 'Permanently Delete User'}</span>
                 </button>
               </div>
             </form>

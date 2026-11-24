@@ -200,7 +200,7 @@ export default function Sidebar({ onCreateNew, mobileOpen = false, onCloseMobile
                 <span>{isAdmin ? 'Admin Master Storage' : 'Personal Drive'}</span>
               </h4>
               <span className="text-[10px] font-medium text-slate-400 tracking-wider">
-                {isAdmin ? 'Cloudflare R2 Master' : 'My Private Files'}
+                {isAdmin ? 'Enterprise Cloud Vault' : 'My Private Files'}
               </span>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 import {
   Folder,
@@ -25,6 +25,8 @@ import {
 } from '../services/api';
 import FolderCard from '../components/FolderCard';
 import ShareModal from '../components/ShareModal';
+import PageDropOverlay from '../components/PageDropOverlay';
+import { extractEntriesFromDataTransfer } from '../utils/folderUpload';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
 
@@ -38,6 +40,50 @@ export default function MyFilesPage() {
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState(null);
   const [sharingItem, setSharingItem] = useState(null);
+  const [isPageDragging, setIsPageDragging] = useState(false);
+  const dragDepthRef = useRef(0);
+
+  const handlePageDragEnter = (e) => {
+    if (!e.dataTransfer?.types?.includes('Files')) return;
+    e.preventDefault();
+    dragDepthRef.current += 1;
+    setIsPageDragging(true);
+  };
+
+  const handlePageDragOver = (e) => {
+    if (!e.dataTransfer?.types?.includes('Files')) return;
+    e.preventDefault();
+  };
+
+  const handlePageDragLeave = (e) => {
+    if (!e.dataTransfer?.types?.includes('Files')) return;
+    e.preventDefault();
+    dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+    if (dragDepthRef.current === 0) {
+      setIsPageDragging(false);
+    }
+  };
+
+  const handlePageDrop = async (e) => {
+    if (!e.dataTransfer?.types?.includes('Files')) return;
+    e.preventDefault();
+    dragDepthRef.current = 0;
+    setIsPageDragging(false);
+
+    try {
+      const extracted = await extractEntriesFromDataTransfer(e.dataTransfer);
+      if (extracted.items.length === 0 && extracted.folders.length === 0) return;
+      context?.openCreate &&
+        context.openCreate({
+          initialTab: 'upload',
+          parentId: null,
+          defaultFolder: 'Team Folder',
+          initialPayload: extracted,
+        });
+    } catch (err) {
+      toast.error(err?.message || 'Could not read dropped files or folders');
+    }
+  };
 
   const fetchMyData = async () => {
     try {
@@ -125,7 +171,14 @@ export default function MyFilesPage() {
   };
 
   return (
-    <main className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 w-full space-y-5 sm:space-y-6">
+    <main
+      onDragEnter={handlePageDragEnter}
+      onDragOver={handlePageDragOver}
+      onDragLeave={handlePageDragLeave}
+      onDrop={handlePageDrop}
+      className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 w-full space-y-5 sm:space-y-6 min-h-full relative"
+    >
+      <PageDropOverlay visible={isPageDragging} destinationLabel="My Files (Root)" />
       {/* Page Header */}
       <div className="bg-gradient-to-r from-[#edf2ff] via-[#f1f5fe] to-[#e8eeff] border border-indigo-100/90 rounded-2xl sm:rounded-3xl p-4.5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 shadow-[0_2px_14px_rgba(67,97,238,0.04)]">
         <div>
